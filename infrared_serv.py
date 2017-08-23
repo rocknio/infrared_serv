@@ -2,11 +2,13 @@ import logging
 import logging.handlers
 import os
 import sys
+import threading
 
 import tornado.httpserver
 from tornado.ioloop import IOLoop
 
 from server.dbutils import check_db
+from server.infrared_utils import read_serial
 from server.urls import app_handlers
 from settings import SERVER_PORT, LOG_LEVEL
 
@@ -63,6 +65,30 @@ def hide_win32_console():
         pass
 
 
+def start_http_serv():
+    try:
+        # server configurations
+        app = tornado.web.Application(
+            handlers=app_handlers
+        )
+
+        api_server = tornado.httpserver.HTTPServer(app, xheaders=True)
+        api_server.listen(SERVER_PORT)
+        logging.info("Start server at: %d", SERVER_PORT)
+
+        # start event loop
+        IOLoop.instance().start()
+    except Exception as err:
+        logging.fatal('Infrared HTTP Server start fail! err = %s' % err)
+
+
+def start_receive_serial_data():
+    try:
+        read_serial()
+    except Exception as err:
+        logging.fatal('Infrared HTTP Server start fail! err = %s' % err)
+
+
 if __name__ == "__main__":
     try:
         if check_python_version() is False:
@@ -78,17 +104,8 @@ if __name__ == "__main__":
 
         log_process_info()
 
-        # server configurations
-        app = tornado.web.Application(
-            handlers=app_handlers
-        )
-
-        api_server = tornado.httpserver.HTTPServer(app, xheaders=True)
-        api_server.listen(SERVER_PORT)
-        logging.info("Start server at: %d", SERVER_PORT)
-
-        # start event loop
-        IOLoop.instance().start()
+        t_http = threading.Thread(target=start_http_serv)
+        t_serial = threading.Thread(target=start_receive_serial_data)
     except Exception as e:
         log_str = 'Infrared Server start fail! err = %s' % e
         logging.fatal(log_str)
