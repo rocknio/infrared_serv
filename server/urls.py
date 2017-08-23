@@ -6,6 +6,5 @@ __author__ = 'neo'
 
 # http server url
 app_handlers = [
-    # websocket_model url, connected by web browser, param = dev_type, dev_code
-    (r'/', InfraredHttpRequestHandler)
+    (r'/innerMap/(.*)', InfraredHttpRequestHandler)
 ]
