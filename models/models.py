@@ -44,3 +44,7 @@ class TTriggerLog(Base):
     trigger_time = Column(DateTime)
     un_trigger_time = Column(DateTime)
     duration = Column(Integer)
+    x = Column(Integer)
+    y = Column(Integer)
+    trigger_type = Column(String(16))
+    transid = Column(String(32))

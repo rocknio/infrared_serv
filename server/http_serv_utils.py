@@ -51,7 +51,9 @@ class InfraredHttpRequestHandler(tornado.web.RequestHandler):
         {
             "box_serial": "11111",
             "sensor_type": "infrared",
-            "sensor_addr": 1
+            "sensor_addr": 1,
+            "trigger_type": "Occupied",
+            "transid": "transid"
         }
         :return:
         """
