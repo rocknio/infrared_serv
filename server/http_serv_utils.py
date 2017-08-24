@@ -1,11 +1,13 @@
 # -*- coding: utf-8 -*-
-from server.deal_request import deal_get_path, deal_get_heat
-from server.infrared_trigger import infrared_trigger
 import logging
+
 import tornado.web
 from sqlalchemy.orm import scoped_session, sessionmaker
+
 from server.dbutils import engine
-from server.tag_def import TAG_METHOD_GET_HEAT, TAG_METHOD_GET_PATH, TAG_METHOD_INFRARED_TRIGGER
+from server.deal_request import deal_get_path, deal_get_heat
+from server.infrared_trigger import infrared_trigger
+from server.tag_def import TAG_METHOD_GET_HEAT, TAG_METHOD_GET_PATH
 
 __author__ = 'neo'
 
@@ -28,16 +30,33 @@ class InfraredHttpRequestHandler(tornado.web.RequestHandler):
 
     def get(self, method):
         try:
-            req = self.request.body()
             if str(method).upper() == TAG_METHOD_GET_PATH.upper():
-                deal_get_path(req)
+                res = deal_get_path()
             elif str(method).upper() == TAG_METHOD_GET_HEAT.upper():
-                deal_get_heat(req)
-            elif str(method).upper() == TAG_METHOD_INFRARED_TRIGGER.upper():
-                infrared_trigger(req)
+                res = deal_get_heat()
             else:
                 self.set_status(501)
                 self.write("method invalid, method = {}".format(method))
+                return
+
+            if res:
+                self.write(res)
+        except Exception as err:
+            logging.error("Internal failed! err = {}".format(err))
+            self.set_status(500)
+            self.write("Internal failed! err = {}".format(err))
+
+    def post(self):
+        """
+        {
+            "box_serial": "11111",
+            "sensor_type": "infrared",
+            "sensor_addr": 1
+        }
+        :return:
+        """
+        try:
+            infrared_trigger(self._db, self.request.body())
         except Exception as err:
             logging.error("Internal failed! err = {}".format(err))
             self.set_status(500)

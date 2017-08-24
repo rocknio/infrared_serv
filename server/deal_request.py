@@ -2,9 +2,9 @@
 __author__ = 'neo'
 
 
-def deal_get_heat(msg):
+def deal_get_heat() -> dict:
     pass
 
 
-def deal_get_path(msg):
+def deal_get_path() -> dict:
     pass
