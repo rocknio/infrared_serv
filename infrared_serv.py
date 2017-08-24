@@ -106,6 +106,9 @@ if __name__ == "__main__":
 
         t_http = threading.Thread(target=start_http_serv)
         t_serial = threading.Thread(target=start_receive_serial_data)
+
+        t_http.start()
+        t_serial.start()
     except Exception as e:
         log_str = 'Infrared Server start fail! err = %s' % e
         logging.fatal(log_str)
